@@ -1,0 +1,36 @@
+diff --git a/fs/ubifs/budget.c b/fs/ubifs/budget.c
+index 123456789..abcdef012 100644
+--- a/fs/ubifs/budget.c
++++ b/fs/ubifs/budget.c
+@@ -22,6 +22,8 @@
+ #include <linux/writeback.h>
+ #include <linux/math64.h>
+ 
++#include <asm/ptrace.h> /* or #include <linux/dump_stack.h> if preferred */
++
+ /*
+  * When pessimistic budget calculations say that there is no enough space,
+  * UBIFS starts writing back dirty inodes and pages, doing garbage collection,
+@@ -385,6 +387,11 @@ static long ubifs_calc_data_growth(const struct ubifs_info *c,
+ 	if (req->new_dent)
+ 		data_growth += c->bi.dent_budget;
+ 	data_growth += req->new_ino_d;
++	if (data_growth > 0x800000) { /* If data_growth > 8M, treat as suspicious */
++		ubifs_dump_budget_req(req);
++		pr_err("calc data_growth %ld\n", data_growth);
++		dump_stack();
++	}
+ 	return data_growth;
+ }
+ 
+@@ -406,6 +413,11 @@ static long ubifs_calc_dd_growth(const struct ubifs_info *c,
+ 	if (req->mod_dent)
+ 		dd_growth += c->bi.dent_budget;
+ 	dd_growth += req->dirtied_ino_d;
++	if (dd_growth > 0x800000) { /* If dd_growth > 8M, treat as suspicious */
++		ubifs_dump_budget_req(req);
++		pr_err("calc dd_growth %ld\n", dd_growth);
++		dump_stack();
++	}
+ 	return dd_growth;
+ }

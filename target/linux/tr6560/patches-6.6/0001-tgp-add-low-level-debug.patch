@@ -1,0 +1,19 @@
+diff -aur old/kernel/printk/printk.c new/kernel/printk/printk.c
+--- old/kernel/printk/printk.c	2022-08-25 17:38:24.000000000 +0800
++++ new/kernel/printk/printk.c	2022-09-23 18:12:31.985288169 +0800
+@@ -2003,6 +2003,15 @@
+		}
+	}
+
++	/* Enable CONFIG_DEBUG_LL for debugging before printk is functional */
++#ifdef CONFIG_DEBUG_LL
++	{
++		extern void printascii(const char *);
++		if (unlikely(hlist_empty(&console_list))) /* Check if console_list is empty */
++			printascii(text);
++	}
++#endif
++
+	if (level == LOGLEVEL_DEFAULT)
+		level = default_message_loglevel;
+

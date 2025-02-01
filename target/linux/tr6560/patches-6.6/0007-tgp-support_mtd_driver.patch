@@ -1,0 +1,9 @@
+diff --git a/drivers/mtd/Makefile b/drivers/mtd/Makefile
+index d54321abc..e8a76f123 100644
+--- a/drivers/mtd/Makefile
++++ b/drivers/mtd/Makefile
+@@ -37,3 +37,4 @@ obj-$(CONFIG_MTD_LEGACY_MAP)	+= legacy/
+ 
+ # Composite drivers must be loaded last
+ obj-y				+= composite/
++obj-$(CONFIG_MTD_TRIDUCTOR_NAND)	+= triductor/

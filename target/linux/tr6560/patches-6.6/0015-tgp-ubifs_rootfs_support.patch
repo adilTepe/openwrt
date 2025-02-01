@@ -1,0 +1,48 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+Subject: [PATCH] ubi, init: Improve UBI auto-attach logs and mount flags usage
+
+---
+ drivers/mtd/ubi/build.c | 5 +++--
+ init/do_mounts.c        | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/mtd/ubi/build.c b/drivers/mtd/ubi/build.c
+index 123456789..abcdef012 100644
+--- a/drivers/mtd/ubi/build.c
++++ b/drivers/mtd/ubi/build.c
+@@ -1226,8 +1226,8 @@ static int ubi_auto_attach_mtd_dev(struct mtd_info *mtd, loff_t offset)
+ 
+ 	/* check for a valid ubi magic */
+ 	if (strncmp(magic, "UBI#", 4)) {
+-		pr_err("UBI error: no valid UBI magic found inside mtd%d\n", mtd->index);
+-		goto cleanup;
++		pr_err("UBI error: no valid UBI magic found inside mtd%d, flashtype: %d\n",
++		       mtd->index, mtd->type);
+ 		/*goto cleanup;*/
+ 	}
+ 
+@@ -1238,7 +1238,7 @@ static int ubi_auto_attach_mtd_dev(struct mtd_info *mtd, loff_t offset)
+ 		goto cleanup;
+ 
+ 	mutex_lock(&ubi_devices_mutex);
+-	pr_notice("UBI: auto-attach mtd%d\n", mtd->index);
++	pr_notice("UBI: auto-attach mtd%d offset 0x%x\n", mtd->index, offset);
+ 	err = ubi_attach_mtd_dev(mtd, UBI_DEV_NUM_AUTO, 0, 0);
+ 	mutex_unlock(&ubi_devices_mutex);
+ 	if (err < 0) {
+diff --git a/init/do_mounts.c b/init/do_mounts.c
+index 23456789a..bcdefabc1 100644
+--- a/init/do_mounts.c
++++ b/init/do_mounts.c
+@@ -478,7 +478,7 @@ static int __init mount_ubi_rootfs(void)
+ #ifdef CONFIG_MTD_ROOTFS_ROOT_DEV
+ static int __init mount_ubi_rootfs(void)
+ {
+-	int flags = MS_SILENT;
++	int flags = root_mountflags;
+ 	int err, tried = 0;
+ 
+ 	while (tried < 2) {
+-- 
+2.42.0
+
